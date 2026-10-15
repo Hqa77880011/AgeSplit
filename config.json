@@ -1,0 +1,93 @@
+{
+  "duration_s": 600,
+  "fps": 10,
+  "frame_deadline_s": 0.15,
+  "tick_s": 0.01,
+  "initial_age_s": 0.1,
+  "aoi_threshold_s": 0.25,
+  "violation_target": 0.1,
+  "horizon_s": 0.3,
+  "telemetry_delay_s": 0.0,
+  "admission_reserve_s": 0.01,
+  "clock_uncertainty_s": 0.0,
+  "link_delay_s": 0.005,
+  "good_bytes_s": 3000000.0,
+  "bad_bytes_s": 250000,
+  "down_bytes_s": 2500000.0,
+  "bad_burst_s": 0.3,
+  "bad_fraction": 0.2,
+  "estimate_rate_floor": 1000,
+  "burst_credits": [
+    1300000,
+    0.65,
+    0.4
+  ],
+  "refill_rates": [
+    1300000,
+    0.65,
+    0.4
+  ],
+  "physical_max_rates": [
+    3000000.0,
+    2500000.0
+  ],
+  "memory_bytes": 64000000.0,
+  "queue_limit": 8,
+  "fixed_route": 2,
+  "control_bytes": 128,
+  "quality_weight": 1,
+  "age_weight": 2,
+  "violation_weight": 1,
+  "resource_prices": [
+    0.2,
+    0.2,
+    0.2
+  ],
+  "routes": [
+    {
+      "name": "early",
+      "local_s": 0.012,
+      "edge_s": 0.03,
+      "up_bytes": 160000,
+      "down_bytes": 2000,
+      "memory_bytes": 4000000.0,
+      "quality": 1
+    },
+    {
+      "name": "middle",
+      "local_s": 0.025,
+      "edge_s": 0.022,
+      "up_bytes": 80000,
+      "down_bytes": 2000,
+      "memory_bytes": 5000000.0,
+      "quality": 1
+    },
+    {
+      "name": "late",
+      "local_s": 0.045,
+      "edge_s": 0.012,
+      "up_bytes": 32000,
+      "down_bytes": 2000,
+      "memory_bytes": 6000000.0,
+      "quality": 1
+    },
+    {
+      "name": "compressed",
+      "local_s": 0.035,
+      "edge_s": 0.02,
+      "up_bytes": 16000,
+      "down_bytes": 2000,
+      "memory_bytes": 5000000.0,
+      "quality": 0.95
+    },
+    {
+      "name": "local",
+      "local_s": 0.09,
+      "edge_s": 0,
+      "up_bytes": 0,
+      "down_bytes": 0,
+      "memory_bytes": 8000000.0,
+      "quality": 1
+    }
+  ]
+}
