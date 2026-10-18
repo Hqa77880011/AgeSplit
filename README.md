@@ -2,20 +2,42 @@
 
 Implementation of AoI-constrained split-inference scheduling over bursty edge networks.
 
-Install with `python -m pip install -e .`, then follow the replay workflow:
+## Installation
+
+Use Python 3.10+. Create and activate a virtual environment before installing:
 
 ```bash
-python -m agesplit prepare --seed 11
-python -m agesplit compare --output outputs/comparison
-python -m agesplit run --policy agesplit --output outputs/agesplit
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -e .
 ```
 
-`prepare` writes arrival timestamps and a two-state service-opportunity trace. It does not generate model predictions. Replace `frames.csv` with measured captures (`capture,deadline,image_id`, seconds) and `network.csv` with piecewise-constant uplink/downlink rates (`time,up_bytes_s,down_bytes_s`). Time starts at zero; rows are chronological. Profiles in `config.json` describe legal cuts including all crossing tensors, encoding/decoding compute, return bytes, peak buffer bytes and development-only quality. Replace example profiles with measurements from your detector. COCO and VisDrone provide the paper's detection workloads: [COCO](https://cocodataset.org/) and [VisDrone](https://github.com/VisDrone/VisDrone-Dataset). Separate development/test sequences and network seeds before selecting weights.
+In PowerShell, replace the activation line with `.venv\Scripts\Activate.ps1`.
 
-The online controller sees current or delayed telemetry. Actual transfers consume the shared exogenous trace and maintain policy-specific queues. The event loop schedules local, uplink, edge and downlink stages, reserving the complete route against replenished byte/local/edge credits. Expired waiting suffixes refund unused reservations; launched compute completes and stays charged. The frame/cut score combines one-refresh age-area gain, violation-duration gain, debt, quality and resource prices. Comparisons retain the same route library and include latency, EDF, fixed-cut, fixed-cut gain, local-only, no-debt and no-cancellation controls.
+## Data and preprocessing
 
-`tick_s` sets the execution resolution and rounds stage completion to ticks. `horizon_s`, `aoi_threshold_s`, frame deadlines and initial age are distinct. `burst_credits` and `refill_rates` follow byte/local-second/edge-second order; `physical_max_rates` supplies cancellation lower bounds and must bound the actual traces. Memory is reserved per admitted route. The included serial stage executor does not switch an admitted frame to a different cut. `fixed-cut` serves oldest admitted captures on a fixed route; `fixed-gain` retains the receiver-aware score while restricting route choice.
+`prepare` creates seeded frame arrivals and bursty-network replay tapes from `config.json`. Route latency, bytes, memory and quality are declared simulation inputs. Actual detector mAP additionally requires `--coco-reference` and `--detections` inputs; generated route quality is not detector accuracy.
 
-Each run writes delivery records and actual resource/receiver metrics. Mean AoI and violation duration integrate the full observation interval, including its initial and final gaps; coverage divides by every capture. Controller CPU time is measured in the replay process; it is reported separately from profiled device compute. The work proxy converts measured occupied seconds to milliseconds and uses MB with the paper's weights. `service.png` displays the service trade-off.
+```bash
+python -m agesplit prepare --config config.json --data data --seed 11
+```
 
-For full-stream detection AP, install `pycocotools` and pass `--coco-reference instances.json --detections route_predictions.json`. Predictions have shape `{route_name: {image_id: [COCO detection dictionaries]}}`. Only timely deliveries contribute detections, while every captured image remains in the COCO evaluation set. This evaluates your actual detector outputs; route quality estimates are never converted into AP. Multi-stream hardware contention and two-refresh optimization require separately supplied execution traces or a scheduler extension and are not labeled as the included controls.
+## Training and inference
+
+```bash
+python -m agesplit run --config config.json --data data --policy agesplit --output outputs/agesplit --seed 11
+```
+
+## Evaluation
+
+```bash
+python -m agesplit compare --config config.json --data data --output outputs/comparison --seed 11
+```
+
+## Outputs
+
+The data folder contains generated replay arrays. Run/comparison folders contain per-policy delivery JSON, `metrics.json` and `service.png`.
+
+Keep `config.json` with the run; it contains model/data settings and the seed where the CLI does not expose one. Use separate output directories for different seeds/conditions.
+
+Source inspection: Python 3.13.5, numpy 2.1.3, matplotlib 3.10.0 (installed versions inspected). Checks covered Python syntax, configuration parsing and CLI arguments. No training, full evaluation or CI was run in this update.
